@@ -5,10 +5,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-#pragma warning disable CS1591 // 缺少对公共可见类型或成员的 XML 注释
 namespace MDM.Examples
 {
-    internal class GraphNodeExample : IGraphNode<GraphNodeExample, GraphEdgeExample>, IGraphNodePath<GraphNodeExample, GraphEdgeExample>
+    internal class GraphNodeExample : IGraphNode<GraphNodeExample, GraphEdgeExample>,
+        IGraphNodePath<GraphNodeExample, GraphEdgeExample>
     {
         public GraphNodeExample(string name)
         {
@@ -16,45 +16,109 @@ namespace MDM.Examples
         }
         public string Name { get; }
         public override string ToString() => Name;
+
         public HashSet<GraphEdgeExample> InEdges { get; } = new();
+
         public HashSet<GraphEdgeExample> OutEdges { get; } = new();
+
         public IGraphNodePath<GraphNodeExample, GraphEdgeExample> PathValue => this;
+
         public IGraphNodePath<GraphNodeExample, GraphEdgeExample> Father { get; set; }
+        public GraphEdgeExample FromEdge { get; set; }
         public GraphNodeExample Current => this;
-        public uint G { get; set; } = 0;
-        public uint Heuristic(GraphNodeExample otherNode)
+        public uint G { get; set; }
+        public uint Heuristic(GraphNodeExample otherNode) => 0;
+        public GraphEdgeExample AddNewEdgeTo(GraphNodeExample otherNode, uint weight)
         {
-            return 0;
+            if (otherNode == null || otherNode == this)
+                return default;
+            var edge = new GraphEdgeExample(this, otherNode, weight);
+            OutEdges.Add(edge);
+            otherNode.InEdges.Add(edge);
+            return edge;
         }
-        public void ResetPathFound()
+        public bool TryRemoveAllEdgeTo(GraphNodeExample otherNode, out List<GraphEdgeExample> edges)
         {
-            G = 0;
-            Father = null;
-        }
-        public bool TryAddEdgeTo(GraphNodeExample otherNode, uint weight, out GraphEdgeExample edge)
-        {
-            edge = null;
-            if (otherNode == null)
+            edges = new();
+            if (otherNode == null || otherNode == this)
                 return false;
-            edge = OutEdges.IsTo(otherNode);
-            if (edge == null)
+            edges = OutEdges.AllTo(otherNode).ToList();
+            if (edges.Count > 0)
             {
-                edge = new GraphEdgeExample(this, otherNode, weight);
-                OutEdges.Add(edge);
-                otherNode.InEdges.Add(edge);
+                foreach (var edge in edges)
+                {
+                    OutEdges.Remove(edge);
+                    otherNode.InEdges.Remove(edge);
+                }
                 return true;
             }
-            return true;
+            return false;
         }
-        public bool TryRemoveEdgeTo(GraphNodeExample otherNode, out GraphEdgeExample edge)
+        public bool TryRemoveAllEdgeFrom(GraphNodeExample otherNode, out List<GraphEdgeExample> edges)
         {
-            edge = null;
-            if (otherNode == null)
+            edges = new();
+            if (otherNode == null || otherNode == this)
                 return false;
-            edge = OutEdges.IsTo(otherNode);
-            if (edge == null)
+            edges = InEdges.AllFrom(otherNode).ToList();
+            if (edges.Count > 0)
+            {
+                foreach (var edge in edges)
+                {
+                    InEdges.Remove(edge);
+                    otherNode.OutEdges.Remove(edge);
+                }
+                return true;
+            }
+            return false;
+        }
+
+        public bool AddNewEdge(GraphEdgeExample edge)
+        {
+            if (edge.IsTo(this))
+            {
+                InEdges.Add(edge);
+                edge.FromNode.OutEdges.Add(edge);
+                return true;
+            }
+            else if (edge.IsFrom(this))
+            {
+                OutEdges.Add(edge);
+                edge.ToNode.InEdges.Add(edge);
+                return true;
+            }
+            else 
                 return false;
-            return true;
+        }
+
+        public bool RemoveEdge(GraphEdgeExample edge)
+        {
+            if (edge.IsTo(this))
+            {
+                InEdges.Remove(edge);
+                edge.FromNode.OutEdges.Remove(edge);
+                return true;
+            }
+            else if (edge.IsFrom(this))
+            {
+                OutEdges.Remove(edge);
+                edge.ToNode.InEdges.Remove(edge);
+                return true;
+            }
+            else
+                return false;
+        }
+        public void RemoveAllEdges()
+        {
+            foreach (var edge in InEdges.ToList())
+            {
+                edge.FromNode.OutEdges.Remove(edge);
+            }
+            InEdges.Clear();
+            foreach (var edge in OutEdges.ToList())
+            {
+                edge.ToNode.InEdges.Remove(edge);
+            }
+            OutEdges.Clear();
         }
     }
     internal class GraphEdgeExample : IGraphEdge<GraphNodeExample, GraphEdgeExample>
@@ -66,8 +130,11 @@ namespace MDM.Examples
             LinkWeight = weight;
         }
         public GraphNodeExample FromNode { get; }
+
         public GraphNodeExample ToNode { get; }
+
         public uint LinkWeight { get; set; }
+
+        public override string ToString() => $"<{FromNode} -> {ToNode}>({LinkWeight})";
     }
 }
-#pragma warning restore CS1591 // 缺少对公共可见类型或成员的 XML 注释
