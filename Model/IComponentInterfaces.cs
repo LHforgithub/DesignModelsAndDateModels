@@ -78,4 +78,22 @@ namespace MDM.Model
         /// <param name="componentID">设置的标识符值</param>
         void SetComponentID(int componentID);
     }
+    /// <summary>
+    /// 组件基础接口，定义组合模式中的节点
+    /// </summary>
+    /// <typeparam name="T">组件类型</typeparam>
+    public interface IComponentComposite<T, U> : IComponentComposite
+        where T : IComponent<U>
+        where U : IComponentComposite<T, U>
+    {
+        /// <summary>
+        /// 获取当前组件的父级组合
+        /// </summary>
+        T TargetComponent { get; }
+        /// <summary>
+        /// 设置当前组件的父级组合
+        /// </summary>
+        /// <param name="target"></param>
+        void SetTargetComponent(T target);
+    }
 }

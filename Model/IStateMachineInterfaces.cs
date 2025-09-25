@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -28,7 +28,7 @@ namespace MDM.Model
         /// 获取状态转换字典（状态到事件的映射）
         /// </summary>
         /// <value>状态转换规则字典</value>
-        Dictionary<U, T> StateEventDic { get; }
+        Dictionary<T, U> StateEventDic { get; }
         
         /// <summary>
         /// 根据事件转换到新状态
@@ -68,9 +68,9 @@ namespace MDM.Model
         /// <returns>是否成功获取</returns>
         bool TryGetEvent(T state, out U eventState);
         /// <summary>
-        /// 更新当前状态（不触发状态转换）
+        /// 更新当前状态
         /// </summary>
-        void UpdateCurrentState(U stateEvent);
+        void UpdateCurrentState();
     }
     /// <summary>
     /// 状态事件接口，定义状态转换的触发条件
