@@ -13,7 +13,7 @@ namespace MDM.Model
     /// <typeparam name="TFactory">创建的工厂的抽象类型</typeparam>
     public class FactoryMaker<TFactory> where TFactory : class, IFactory
     {
-        private HashSet<TFactory> Factorys { get; } = new HashSet<TFactory>();
+        protected HashSet<TFactory> Factorys { get; } = new HashSet<TFactory>();
         /// <summary>
         /// 创建工厂类实例，并加入哈希表中，后续调用时直接返回哈希表中已创建工厂对象。
         /// </summary>

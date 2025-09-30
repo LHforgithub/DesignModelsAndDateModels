@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -30,20 +30,20 @@ namespace MDM.Examples
     }
 
     /// <summary>
-    /// 产品示例类，实现<see cref="IProduction{T}"/>接口
+    /// 产品示例类，实现<see cref="IProduction"/>接口
     /// </summary>
-    internal sealed class ProductExample : IProduction<FactoryExample>
+    internal sealed class ProductExample : IProduction
     {
         /// <summary>
         /// 获取创建此产品的工厂实例
         /// </summary>
-        public FactoryExample Factory { get; private set; }
+        public IFactory Factory { get; private set; }
 
         /// <summary>
         /// 当产品被工厂创建时调用
         /// </summary>
         /// <param name="factory">创建此产品的工厂实例</param>
-        public void OnCreatedByFactory(FactoryExample factory)
+        public void OnCreatedByFactory(IFactory factory)
         {
             Factory = factory;
         }

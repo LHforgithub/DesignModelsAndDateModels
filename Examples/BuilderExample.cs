@@ -13,6 +13,9 @@ namespace MDM.Examples
         private HashSet<BuildFuncExample> BuildingFuncs { get; } = new HashSet<BuildFuncExample>();
         HashSet<BuildFuncExample> IBuilder<BuildProduct, BuildFuncExample>.BuildingFuncs => BuildingFuncs;
 
+        IEnumerable<IBuildingFunction> IBuilder.BuildingFuncs => BuildingFuncs;
+
+
         public BuildProduct AssemblyLine(BuildProduct originalValue)
         {
             foreach(var func in OrderedBuildFuncs())
@@ -35,6 +38,22 @@ namespace MDM.Examples
 
         void IBuilder<BuildProduct, BuildFuncExample>.AddBuildFunc(BuildFuncExample buildFunc) => BuildingFuncs.Add(buildFunc);
         void IBuilder<BuildProduct, BuildFuncExample>.RemoveBuildFunc(BuildFuncExample buildFunc) => BuildingFuncs.Remove(buildFunc);
+
+        object IBuilder.Build()
+        {
+            return Build();
+        }
+
+        public void AddBuildFunc(IBuildingFunction buildingFunction)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void RemoveBuildFunc(IBuildingFunction buildingFunction)
+        {
+            throw new NotImplementedException();
+        }
+
     }
     internal sealed class BuildProduct
     {
